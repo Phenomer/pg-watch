@@ -39,7 +39,7 @@ services:
             dockerfile: Docker/front/Dockerfile
         image: pg-watch/watch-front
         ports:
-            - 8080:80/tcp
+            - 8000:80/tcp
         networks:
             - pg-net
         deploy:
