@@ -1,0 +1,65 @@
+services:
+    db-init:
+        image: postgres:17-alpine
+        env_file:
+            - ./configs/.env
+        volumes:
+            - ./data:/var/lib/postgresql/data
+            - ./logs:/var/lib/postgresql/logs
+            - ./configs/postgresql.conf:/etc/postgresql.conf
+            - ./configs/pg-initialize.sh:/pg-initialize.sh
+        command: /bin/bash -c "chmod +x /pg-initialize.sh && /pg-initialize.sh"
+        networks:
+            - pg-net
+
+    db-server:
+        image: postgres:17-alpine
+        env_file:
+            - ./configs/.env
+        volumes:
+            - ./data:/var/lib/postgresql/data
+            - ./logs:/var/lib/postgresql/logs
+            - ./configs/postgresql.conf:/etc/postgresql.conf
+        command: postgres -c config_file=/etc/postgresql.conf
+        ports:
+            - 5432:5432/tcp
+        networks:
+            - pg-net
+        deploy:
+            restart_policy:
+                condition: any
+                delay: 10s
+        depends_on:
+            db-init:
+                condition: service_completed_successfully
+
+    watch-front:
+        build:
+            context: .
+            dockerfile: Docker/front/Dockerfile
+        image: pg-watch/watch-front
+        ports:
+            - 8080:80/tcp
+        networks:
+            - pg-net
+        deploy:
+            restart_policy:
+                condition: any
+                delay: 10s
+
+    watch-api:
+        build:
+            context: .
+            dockerfile: Docker/api/Dockerfile
+        image: pg-watch/watch-api
+        volumes:
+            - ./logs:/opt/pglogs
+        networks:
+            - pg-net
+        deploy:
+            restart_policy:
+                condition: any
+                delay: 10s
+
+networks:
+    pg-net:

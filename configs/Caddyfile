@@ -1,0 +1,13 @@
+:80 {
+    log {
+            output stdout
+            level info
+    }
+
+    root * /opt/db-watch
+    file_server
+
+    reverse_proxy /api/* {
+        to watch-api:3000
+    }
+}
