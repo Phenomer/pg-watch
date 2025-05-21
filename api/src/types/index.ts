@@ -1,7 +1,7 @@
 export interface LogData {
     user: string;
     database: string;
-    query: string;
+    statement: string;
     message: string;
     success: boolean;
     timestamp: string;

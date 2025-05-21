@@ -11,14 +11,11 @@ export class LogService {
     }
 
     private async loadLogs() {
-        const latestLogFilePath = this.getLatestLogFilePath(this.logDirPath);
-        if (latestLogFilePath) {
-            await this.readLogFile(latestLogFilePath);
-        }
+        this.readAllLogFiles(this.logDirPath);
         this.watchLogFile();
     }
 
-    private async readLogFile(latestLogFilePath:string) {
+    private async readLogFile(latestLogFilePath: string) {
         try {
             const data = await readFile(latestLogFilePath, 'utf-8');
             const lines = data.split('\n').filter(line => line.trim() !== '');
@@ -41,21 +38,40 @@ export class LogService {
         });
     }
 
+    /* 全てのログファイルに対してreadLogFileを実行する。 */
+    private async readAllLogFiles(targetDir: string) {
+        const files = fs.readdirSync(targetDir);
+        const logFiles = files.filter(file => file.endsWith('.json'));
+
+        /* ログファイルを更新日時でソート */
+        logFiles.sort((a, b) => {
+            const aTime = fs.statSync(`${targetDir}/${a}`).mtime;
+            const bTime = fs.statSync(`${targetDir}/${b}`).mtime;
+            return aTime.getTime() - bTime.getTime();
+        });
+
+        for (const file of logFiles) {
+            await this.readLogFile(`${targetDir}/${file}`);
+        }
+    }
+
     /* 指定したディレクトリ内で最新のログファイルのパスを返す。 */
-    private getLatestLogFilePath(directory: string): string | null {
-        const files = fs.readdirSync(directory);
+    /*
+    private getLatestLogFilePath(targetDir: string): string | null {
+        const files = fs.readdirSync(targetDir);
         const logFiles = files.filter(file => file.endsWith('.json'));
         if (logFiles.length === 0) return null;
 
         const latestFile = logFiles.reduce((prev, curr) => {
-            const prevStat = fs.statSync(`${directory}/${prev}`);
-            const currStat = fs.statSync(`${directory}/${curr}`);
+            const prevStat = fs.statSync(`${targetDir}/${prev}`);
+            const currStat = fs.statSync(`${targetDir}/${curr}`);
             return prevStat.mtime > currStat.mtime ? prev : curr;
         });
 
-        console.log(`latest log file: ${directory}/${latestFile}`);
-        return `${directory}/${latestFile}`;
+        console.log(`latest log file: ${targetDir}/${latestFile}`);
+        return `${targetDir}/${latestFile}`;
     }
+    */
 
     private updateUserDescription(jsonData: any) {
         if (jsonData.user && jsonData.dbname) {
@@ -63,7 +79,7 @@ export class LogService {
             this.userDescription[user] = {
                 user: jsonData.user,
                 database: jsonData.dbname,
-                query: jsonData.statement || '',
+                statement: jsonData.statement || '',
                 message: jsonData.message || '',
                 success: jsonData.error_severity !== 'ERROR',
                 timestamp: jsonData.timestamp,
