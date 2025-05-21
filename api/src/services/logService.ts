@@ -76,13 +76,23 @@ export class LogService {
     private updateUserDescription(jsonData: any) {
         if (jsonData.user && jsonData.dbname) {
             const user = jsonData.user;
+
+            // timestampをISO 8601形式（"YYYY-MM-DDTHH:mm:ss.sssZ"）に変換
+            let isoTimestamp = jsonData.timestamp;
+            if (typeof isoTimestamp === 'string') {
+                // "2025-05-19 03:01:58.471 UTC" → "2025-05-19T03:01:58.471Z"
+                isoTimestamp = isoTimestamp
+                    .replace(' ', 'T')
+                    .replace(' UTC', 'Z');
+            }
+
             this.userDescription[user] = {
                 user: jsonData.user,
                 database: jsonData.dbname,
                 statement: jsonData.statement || '',
                 message: jsonData.message || '',
                 success: jsonData.error_severity !== 'ERROR',
-                timestamp: jsonData.timestamp,
+                timestamp: isoTimestamp,
             };
         }
     }
