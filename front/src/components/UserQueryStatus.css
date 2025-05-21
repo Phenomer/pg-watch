@@ -1,25 +1,22 @@
 #user-query-status-container {
     display: grid;
-    grid-template-columns: 6em 8em 8em 1fr 1fr 5em;
+    grid-template-columns: 8em 8em 8em 1fr 1fr 5em;
     gap: 5px;
     overflow-y: auto; /* 縦スクロールを有効化 */
     border: 1px solid;
-    width: calc(100dvw - 20px);
+    width: calc(100% - 20px);
     margin: 10px;
     padding: 10px;
 }
 
-.query-entry {
-    display: contents; /* Gridの中で要素を展開 */
-}
-
-.timestamp, .user, .database, .message, .query, .status {
+.timestamp, .user, .database, .message, .statement, .status {
+    width: calc(100% - 10px);
     padding: 5px;
     border-bottom: 1px solid;
     overflow-wrap: break-word; /* 長い単語を折り返し */
 }
 
-.message, .query {
+.message, .statement {
     white-space: pre-wrap; /* 改行を保持 */
 }
 

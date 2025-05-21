@@ -5,7 +5,7 @@ interface UserQuery {
     timestamp: string;
     database: string;
     message: string;
-    query: string;
+    statement: string;
     success: boolean;
 }
 
@@ -45,6 +45,12 @@ const UserQueryStatus: React.FC = () => {
 
     return (
         <div id="user-query-status-container">
+            <div className="timestamp">Time</div>
+            <div className="user">User</div>
+            <div className="database">Database</div>
+            <div className="statement">Statement</div>
+            <div className="message">Message</div>
+            <div className="status">Status</div>
             {Object.keys(data).map((user) => {
                 const item = data[user];
                 return (
@@ -52,8 +58,8 @@ const UserQueryStatus: React.FC = () => {
                         <div className="timestamp">{convertToJST(item.timestamp)}</div>
                         <div className="user">{user}</div>
                         <div className="database">{item.database}</div>
+                        <div className="statement">{item.statement}</div>
                         <div className="message">{item.message}</div>
-                        <div className="query">{item.query}</div>
                         <div className="status">{item.success ? 'Success' : 'Error'}</div>
                     </React.Fragment>
                 );
